@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class RegisterController extends Controller
 {
@@ -14,6 +16,8 @@ class RegisterController extends Controller
     }
     public function store(Request $request)
     {
+        $request->request->add(['username' => Str::slug($request->username)]);
+
         $request->validate([
             'name' => 'required|max:30',
             'username' => 'required|unique:users',
@@ -31,5 +35,14 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => $request->password
         ]);
+
+        // Auth::attempt([
+        //     'email' => $request->email,
+        //     'password' => $request->password,
+        // ]);
+
+        Auth::attempt($request->only('email', 'password'));
+
+        return redirect()->route('posts.index');
     }
 }
